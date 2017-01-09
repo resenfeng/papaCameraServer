@@ -10,10 +10,10 @@
 
 require_once ('include.php');
 //require_once ('function/clMongoOperation.php');
-//require_once ('function/clGetDataStr.php');
-//$test=new clMongoOperation("advert_info",null,null);
-//$result = $test->fnGetOne();
-//print_r($result);
+
+$test=new clMongoOperation("advert_info",null,null);
+$result = $test->fnGetOne();
+print_r($result);
 
 //Insert
 //$data=array("ad_name"=>"cola","ad_type_id"=>1);
@@ -68,30 +68,3 @@ require_once ('include.php');
 //$test=new clSetCoupon($data);
 //$result=$test->fnUseCoupon();
 //echo $result;
-
-//测试fnGetAdId
-//$data = array("arShow"=>array("_id"),"get_num"=>5);
-////$data = array("arShow"=>array("_id"));
-//$test = new clGetDataStr($data);
-//$result = $test->fnGetAdId();
-// echo $result;
-
-
-//测试fnGetAdTitle
-//$data = array("arShow"=>array("name"=>true,"_id"=>false),"get_num"=>5);
-////$data = array("arShow"=>array("name"=>true,"_id"=>false));
-//$test = new clGetDataStr($data);
-//$result = $test->fnGetAdTitle();
-//echo $result;
-
-//测试fnGetAdT
-//$data = array("arShow"=>array("theme_url"=>true,"_id"=>false),"get_num"=>5);
-////$data = array("arShow"=>array("name"=>true,"_id"=>false));
-//$test = new clGetDataStr($data);
-//$result = $test->fnGetAdT();
-//echo $result;
-
-$data = array("user_phone"=>"17751781352","cp_ad_id"=>1);
-$test = new clSetCoupon($data);
-$result = $test->fnInsertCoupon();
-print_r($result);

@@ -149,15 +149,20 @@ class clSqlOperation
 //        }
 //        return $result;
 
-        $result = array();
+
 //        $sql = 'select '."$this->text".' from '."$this->table"." $this->spSql";
 //        $query = mysql_query("$sql");
 //        $query = mysql_fetch_row($query);
+
         $query = mysql_query("$this->spSql");
-        while(@$record = mysql_fetch_row($query))
-        {
-            $result[] = $record;
-        }
+
+                while(@$record = mysql_fetch_row($query))
+                {
+                    $result[] = $record;
+                }
+
+
+
         return $result;
     }
 
@@ -190,6 +195,7 @@ class clSqlOperation
         $sql = 'select '."$this->text".' from '."$this->table".$where.$spsql;
 
         $query = mysql_query("$sql");
+
         while(@$record = mysql_fetch_array($query,$index))
         {
             $result[] = $record;

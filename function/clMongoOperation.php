@@ -15,11 +15,11 @@ define("MONGOSERVER","mongodb://yyz:nj_yyz_312_mongo@180.153.51.180:28001/papaca
 class clMongoOperation
 {
 
-    protected $collection;         //操作的集合
-    protected $arCond;          //获取,更新，删除记录的条件
-    protected $arShow;        //显示的字段array('field1','field2'),或者是update,insert的值
-    protected $backVal;      //返回值
-    protected $mongoDB;      //连接mongodb
+    private $collection;         //操作的集合
+    private $arCond;          //获取,更新，删除记录的条件
+    private $arShow;        //显示的字段array('field1','field2'),或者是update,insert的值
+    private $backVal;      //返回值
+    private $mongoDB;      //连接mongodb
 
     function __construct($collection,$arCond,$arShow=array())
     {

@@ -16,5 +16,8 @@ $connect = mysql_connect(SERVER_NAME,USER_NAME,PASSWORD);
 if(!$connect){
     die("connect error".mysql_error());
 }
+else{
+//    echo "<br/>连接成功<br/>";
+}
 mysql_select_db(DB_NAME,$connect);
 mysql_set_charset(DB_CHARSET);

@@ -6,85 +6,135 @@
  * Time: 下午2:31
  */
 require_once ("./function/clSqlOperation.php");
-require_once ("./function/toArray.php");
-
 class clSetCoupon
 {
     private  $backVal;
-    private  $data;
+    private  $userPhone;
+    private  $cpId;
+    private  $userId;
     function __construct($data = array())
     {
-        $this->data = $data;
-        $this->backVal = toArray(0,"返回失败");
+        $this->userPhone = $data['user_phone'];
+        $this->cpId = $data['cp_id'];
+        $this->userId = $this->fnGetUserId();
     }
 
     /**
-     * 通过user_phone获取user_id
+     * 判断能否领取优惠券
+     * @return bool
      */
-    function getUserId(){
-        $backVal = null;
-        $userPhone = $this->data['user_phone'];
-        $getText = "user_id";
-        $table = "user_info";
-        $where = "user_phone = $userPhone";
-        $query = new clSqlOperation($getText,$table,$where,null);
+    private  function isGet($cpId)
+    {
+        $isGet = false;
+        $query  = new clSqlOperation("cp_pub_time","coupon_info","cp_id=$cpId and cp_pub_time>=now()",null);
         $result = $query->fnGetOne();
-        if($result)
-            $backVal = $result;
+        if($result != null)
+            $isGet = true;
+
+        return $isGet;
+    }
+
+    /**
+     * 判断能否使用优惠券
+     * @param $cpId
+     * @return bool
+     */
+    private function isUse($cpId)
+    {
+        $isUse = false;
+        $query  = new clSqlOperation("cp_endtime","coupon_info","cp_id=$cpId and cp_endtime>=now() ",null);
+        $result = $query->fnGetOne();
+        if($result != null)
+            $isUse = true;
+
+        return $isUse;
+    }
+    /**
+     * 用户获得优惠券
+     * @return null|string
+     */
+    function fnInsertCoupon()
+    {
+
+        if($this->userId == null)
+            return ($this->backVal = "插入失败，无法获取用户信息") ;
+
+        if($this->cpId == null)
+            return($this->backVal = "插入失败，优惠券不正确") ;
+        $query = new clSqlOperation("user_cp_id","user_coupon","not(user_cp_state_id in (0,2,4)
+         )and user_id=$this->userId and 
+        user_coupon.cp_id=$this->cpId",null);
+        $result = $query->fnGetOne();
+        if(empty($result))
+        {
+            if($this->isGet($this->cpId)){
+
+                $table="user_coupon";
+                $text=array("user_id"=>$this->userId,"cp_id"=>$this->cpId,"user_cp_state_id"=>3);
+                $query = new clSqlOperation($text,$table,null,null);
+                $result=$query->fnInsert();
+                if($result)
+                    $this->backVal = "插入成功";
+                else
+                    $this->backVal = "插入失败";
+            }else{
+                $this->backVal = "超过领取期限或不存在";
+            }
+        }else {
+            $this->backVal = "用户已经拥有该优惠券";
+        }
+        return $this->backVal;
+    }
+
+    /**
+     * 获得用户id
+     * @return mixed
+     */
+      function fnGetUserId()
+      {
+          $text="user_id";
+          $table="user_info";
+          $cond="user_phone='$this->userPhone'";
+          $query=new clSqlOperation($text,$table,$cond,null);
+          $result=$query->fnGetOne();
+          return $result["user_id"];
+
+      }
+
+    /**
+     * 用户使用优惠券
+     * @return null|string
+     */
+    function fnUseCoupon()
+    {
+        if($this->isUse($this->cpId))
+        {
+            $text = "user_cp_id";
+            $table = "user_coupon";
+            $cond = "user_cp_state_id in (3,7) and user_id = $this->userId and cp_id = $this->cpId ";
+            $query = new clSqlOperation($text,$table,$cond,null);
+            $result = $query->fnGetOne();
+            if(empty($result))
+            {
+                $this->backVal = "无法使用优惠券";
+
+            }
+            else{
+                $text = array("user_cp_state_id"=>5);
+                $table = "user_coupon";
+                $cond = "user_id = $this->userId and cp_id = $this->cpId ";
+                $query = new clSqlOperation($text,$table,$cond,null);
+                $result = $query->fnUpdate();
+                if($result)
+                    $this->backVal = "成功使用优惠券";
+                else
+                    $this->backVal = "使用优惠券失败";
+            }
+        }
         else
-            $backVal = "";
-        return $backVal['user_id'];
-    }
-
-    /**
-     * 通过cp_ad_id得到cp_id,cp_endtime
-     */
-    function getCpId(){
-        $backVal = null;
-        $cpAdId = $this->data['cp_ad_id'];
-        $getText = "cp_id";
-        $table = "coupon_info";
-        $where = "cp_ad_id = \"".$cpAdId."\"";
-        $query = new clSqlOperation($getText,$table,$where,null);
-        $result = $query->fnGetOne();
-        if($result){
-            $backVal = $result;
+        {
+            $this->backVal = "优惠券过期或不存在";
         }
-        else{
-            $backVal = "";
-        }
-        return $backVal['cp_id'];
+        return $this->backVal;
     }
-
-   /**
-    * 判断用户是否可以领取优惠券
-    */
-   function userGetCoupon(){
-       if ($this->getCpId() != null && $this->getUserId() != null){
-           $getText = "cp_id";
-           $table = "user_coupon";
-           $userId = $this->getUserId();
-           $where = "user_id = \"".$userId."\"";
-           $query = new clSqlOperation($getText,$table,$where,null);
-           $result = $query->fnGetOne();
-           if ($result == null){
-               $data1 = array(
-                   'user_id' => $userId,
-                   'cp_id' => $this->getCpId(),
-                   'user_cp_state_id' => 3
-               );
-               $query1 = new clSqlOperation($data1,"user_coupon",null,null);
-               $back = $query1->fnInsert();
-               if ($back)
-                   $this->backVal = toArray(400,"优惠券领取成功！");
-               else
-                   $this->backVal = toArray(401,"数据库操作失败！");
-           }else{
-               $this->backVal = toArray(401,"该用户已经领取该优惠券，优惠券领取失败！");
-           }
-       }else{
-           $this->backVal = toArray(401,"数据库操作失败！");
-       }
-       return $this->backVal;
-   }
 }
