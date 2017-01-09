@@ -95,6 +95,3 @@ $data = array("user_phone"=>"17751781352","cp_ad_id"=>1);
 $test = new clSetCoupon($data);
 $result = $test->fnInsertCoupon();
 print_r($result);
-
-
-
