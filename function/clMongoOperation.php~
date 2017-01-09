@@ -8,26 +8,26 @@
  */
 
 header("Content-type:text/html;charset=utf-8");
-define("MONGOSERVER","mongodb://yyz:nj_yyz_312_mongo@180.153.51.180:28001/papacamera");
 //$mongoDb =new MongoClient();//SERVER
 
 
 class clMongoOperation
 {
 
-    protected $collection;         //操作的集合
-    protected $arCond;          //获取,更新，删除记录的条件
-    protected $arShow;        //显示的字段array('field1','field2'),或者是update,insert的值
-    protected $backVal;      //返回值
-    protected $mongoDB;      //连接mongodb
+    private $collection;         //操作的集合
+    private $arCond;          //获取,更新，删除记录的条件
+    private $spMon;         //特殊情况mongo语句
+    private $arShow;        //显示的字段array('field1','field2'),或者是update,insert的值
+    private $backVal;      //返回值
+    private $mongoDB;      //连接mongodb
 
-    function __construct($collection,$arCond,$arShow=array())
+    function __construct($collection,$arCond,$spMon,$arShow=array())
     {
-        $this->mongoDB = new MongoClient(MONGOSERVER);
-        $this->arShow=$arShow;
+        $this->mongoDB = new MongoClient("mongodb://yyz:nj_yyz_312_mongo@180.153.51.180:28001/papacamera");
+        @$this->arShow=$arShow;
         $this->collection=$this->mongoDB->papacamera->$collection;
         $this->arCond= $arCond;
-
+        $this->spMon=$spMon;
     }
 
     /**
@@ -146,7 +146,16 @@ class clMongoOperation
        return $this->backVal;
     }
 
+    /**特殊的mongodb操作
+     * @return MongoCollection
+     */
+    function fnOther()
+    {
 
+        $query=$this->collection->$this->spMon;
+        $this->backVal = $query;
+        return $this->backVal;
+    }
 
     function __destruct()
     {

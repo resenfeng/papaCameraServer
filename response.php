@@ -8,7 +8,7 @@
  * Explain:
  */
 include "include.php";
-
+require_once ('./coupon/clSetCoupon.php');
 class response
 {
     private $back;
@@ -157,6 +157,15 @@ class response
     public function fnDoUL($data = array()){
         $myInfo = new clDoAdvert($data);
         $result = $myInfo->fnGetLike();
+        $this->back->response($result);
+    }
+
+    public function fnDoCoupon($data = array())
+    {
+        
+       
+        $myCoupon = new clSetCoupon($data);
+        $result = $myCoupon->userGetCoupon();
         $this->back->response($result);
     }
 }

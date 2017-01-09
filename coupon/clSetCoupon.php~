@@ -15,7 +15,7 @@ class clSetCoupon
     function __construct($data = array())
     {
         $this->data = $data;
-        $this->backVal = toArray(0,"返回失败");
+        $this->backVal = null;
     }
 
     /**
@@ -53,6 +53,7 @@ class clSetCoupon
         else{
             $backVal = "";
         }
+//       return $this->backVal;
         return $backVal['cp_id'];
     }
 
@@ -63,27 +64,17 @@ class clSetCoupon
        if ($this->getCpId() != null && $this->getUserId() != null){
            $getText = "cp_id";
            $table = "user_coupon";
-           $userId = $this->getUserId();
+           $userId = $this->getCpId();
            $where = "user_id = \"".$userId."\"";
            $query = new clSqlOperation($getText,$table,$where,null);
            $result = $query->fnGetOne();
-           if ($result == null){
-               $data1 = array(
-                   'user_id' => $userId,
-                   'cp_id' => $this->getCpId(),
-                   'user_cp_state_id' => 3
-               );
-               $query1 = new clSqlOperation($data1,"user_coupon",null,null);
-               $back = $query1->fnInsert();
-               if ($back)
-                   $this->backVal = toArray(400,"优惠券领取成功！");
-               else
-                   $this->backVal = toArray(401,"数据库操作失败！");
+           if (!is_array($result)){
+               $this->backVal = toArray(400,"优惠券领取成功！");
            }else{
-               $this->backVal = toArray(401,"该用户已经领取该优惠券，优惠券领取失败！");
+               $this->backVal = toArray(400,"优惠券领取失败！");
            }
        }else{
-           $this->backVal = toArray(401,"数据库操作失败！");
+           $this->backVal = toArray(400,"优惠券领取失败！");
        }
        return $this->backVal;
    }

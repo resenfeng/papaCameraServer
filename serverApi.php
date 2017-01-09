@@ -45,8 +45,8 @@ switch ($operation){
     case 'adlist':
         $response->fnDoADL($data);
         break;
-    case 'videolist':
-        $response->fnDoVideoL($data);
+    case 'coupon':
+        $response->fnDoCoupon($data);
         break;
     default:
         break;
